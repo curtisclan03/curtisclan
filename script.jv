@@ -1,0 +1,120 @@
+// Number of draggable divs
+const numDivs = 30;
+
+// List of daily activities for college students
+const dailyActivities = [
+    'Work', 'Classes', 'Dinner', 'Workout', 'Read', 'Video Games', 'Watch Movie', 
+    'Nap', 'Study', 'Sleep', 'Homework', 'Laundry', 'Grocery Shopping', 'Socialize', 
+    'Meal Prep', 'Hang Out with Friends', 'Exercise', 'Attend Club Meeting', 
+    'Work on Project', 'Attend Lecture', 'Meet with Professor', 'Listen to Podcast', 
+    'Cook', 'Listen to Music', 'Take Notes', 'Go to Library'
+];
+
+// List of religious activities
+const religiousActivities = [
+    'Church', 'Scripture Study', 'Service', 'Prayer', 'Temple Worship'
+];
+
+// Function to generate a random color
+function randomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+// Function to generate a random shape (rectangle, circle, or ellipse)
+function randomShape() {
+    const shapes = ['0%', '10px', '50%']; // 0% for square, 10px for small rounded, 50% for circle/ellipse
+    return shapes[Math.floor(Math.random() * shapes.length)];
+}
+
+// Function to generate a random size for width and height
+function randomSize() {
+    const width = Math.floor(Math.random() * 120) + 50;  // Random width between 50px and 170px
+    const height = Math.floor(Math.random() * 120) + 50; // Random height between 50px and 170px
+    return { width, height };
+}
+
+// Function to handle the mouse down event on any draggable div
+let isDragging = false;
+let currentDraggable = null;
+let offsetX, offsetY;
+
+function handleMouseDown(event) {
+    isDragging = true;
+    currentDraggable = event.target;  // The draggable div that is being clicked
+    offsetX = event.clientX - currentDraggable.getBoundingClientRect().left;
+    offsetY = event.clientY - currentDraggable.getBoundingClientRect().top;
+    currentDraggable.style.cursor = 'grabbing';
+}
+
+// Function to handle the mouse move event
+function handleMouseMove(event) {
+    if (!isDragging) return;
+
+    // Calculate new position of the draggable div
+    let newX = event.clientX - offsetX;
+    let newY = event.clientY - offsetY;
+
+    // Make sure the div stays within the screen width (bounds checking)
+    newX = Math.max(0, Math.min(window.innerWidth - currentDraggable.offsetWidth, newX));
+    newY = Math.max(0, Math.min(window.innerHeight - currentDraggable.offsetHeight, newY));
+
+    currentDraggable.style.left = `${newX}px`;
+    currentDraggable.style.top = `${newY}px`;
+}
+
+// Function to handle the mouse up event
+function handleMouseUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    currentDraggable.style.cursor = 'grab';
+    currentDraggable = null;
+}
+
+// Function to create a draggable div with random properties
+function createDraggableDiv(index, text) {
+    const div = document.createElement('div');
+    div.classList.add('draggable');
+    div.textContent = text;
+
+    // Apply random size, color, and shape
+    const { width, height } = randomSize();
+    div.style.width = `${width}px`;
+    div.style.height = `${height}px`;
+    div.style.backgroundColor = randomColor();
+    div.style.borderRadius = randomShape();
+
+    // Random position (initial placement anywhere on the screen)
+    const top = Math.floor(Math.random() * (window.innerHeight - height));
+    const left = Math.floor(Math.random() * (window.innerWidth - width));
+    div.style.top = `${top}px`;
+    div.style.left = `${left}px`;
+
+    // Append the div to the body (random initial placement)
+    document.body.appendChild(div);
+
+    // Attach the mouse event listeners for dragging
+    div.addEventListener('mousedown', handleMouseDown);
+}
+
+// Create the specified number of draggable divs
+let activityIndex = 0;
+
+// Assign 25 random daily activities to the divs
+for (let i = 0; i < 25; i++) {
+    createDraggableDiv(i, dailyActivities[activityIndex]);
+    activityIndex++;
+}
+
+// Assign the 5 religious activities
+for (let i = 0; i < 5; i++) {
+    createDraggableDiv(25 + i, religiousActivities[i]);
+}
+
+// Add global mousemove and mouseup event listeners
+document.addEventListener('mousemove', handleMouseMove);
+document.addEventListener('mouseup', handleMouseUp);
